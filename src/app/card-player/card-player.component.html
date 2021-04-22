@@ -1,0 +1,38 @@
+<h1>Rules: </h1>
+<h2>Choose the number of cards to play</h2>
+<h2>You will see the cards on the screen with random numbers</h2>
+<h2>When you click the play button, cards will be flipped to the blank side.</h2>
+<h2>Click on the cards in ascending order of the numbers to win!</h2>
+
+<hr />
+
+<form [formGroup]="cardForm" name="cardForm" id="cardForm">
+  <div>
+    <label for="card-selector" class="h2">Select the number of cards</label>
+    <select formControlName="card-selector" (change)="onSelectionChanged($event)">
+      <option *ngFor="let number of cardNumbers" [value]="number">
+        {{number}}
+      </option>
+    </select>
+  </div>
+</form>
+
+<hr />
+
+<div *ngIf="numbersGenerated">
+  <div *ngFor="let num of randomCardNums; let i = index">
+    <button class="card" [value]="num" [attr.data-index]="i" (click)="handleCardClick($event)">Card: {{
+      showCardMap[i]? num : '?' }}</button>
+  </div>
+
+  <div>
+    <button class="play-btn" id="playBtn" (click)="handlePlay($event)">Play!</button>
+  </div>
+</div>
+
+
+
+<!-- <div *ngIf="shortUrlGenerated">
+  <p>Hey try the below short url in your browser </p>
+  <p>{{ shortUrl }}</p>
+</div> -->
