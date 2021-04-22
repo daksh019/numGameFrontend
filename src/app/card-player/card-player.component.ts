@@ -7,7 +7,7 @@ import {
   FormsModule,
 } from "@angular/forms";
 import { HttpClient } from "@angular/common/http";
-import { isEqual } from "lodash";
+import { isEqual, isDeep } from "lodash";
 
 @Component({
   selector: "card-player-view",
@@ -17,14 +17,14 @@ import { isEqual } from "lodash";
 export class CardPlayer implements OnInit {
   cardForm: FormGroup;
   numbersGenerated = false;
-  selectionChanged = false;
   randomCardNums: number[] = [];
   showCardMap = [];
   clickedValues = [];
+  gameStarted: boolean = false;
+  playBtnText: string = "Play!";
+
   private readonly cardNumbers = [4, 8, 12];
   private readonly backendService = "http://localhost:3000/card/numbers";
-
-  // @ViewChild('mydiv', { static: false }) public mydiv: ElementRef;
 
   constructor(private fb: FormBuilder, private http: HttpClient) {}
 
@@ -36,12 +36,8 @@ export class CardPlayer implements OnInit {
 
   async onSelectionChanged(): Promise<void> {
     const selection = this.cardForm.get("card-selector").value;
-    if (!selection) {
-      return;
-    }
     this.resetValues();
 
-    this.selectionChanged = true;
     const url = `${this.backendService}?count=${selection}`;
     try {
       const randomNumbersArr: any = await this.http
@@ -55,15 +51,18 @@ export class CardPlayer implements OnInit {
       this.randomCardNums = randomNumbersArr;
       this.showCardMap = this.randomCardNums.map((num) => true);
     } catch (err) {
-      this.numbersGenerated = false;
+      this.resetValues();
       alert(err.details.message);
     }
   }
 
   handleCardClick(event) {
+    if (!this.gameStarted) {
+      return;
+    }
     const indexStr = event.target.attributes["data-index"]["value"];
     const index = parseInt(indexStr, 10);
-    const val = event.target.value;
+    const val = parseInt(event.target.value, 10);
     if (!this.showCardMap[index]) {
       this.showCardMap[index] = true;
       this.clickedValues.push(val);
@@ -72,11 +71,11 @@ export class CardPlayer implements OnInit {
   }
 
   computeResult() {
-    console.log(this.showCardMap);
     const remainingCard = this.showCardMap.some((value) => value === false);
-    console.log(remainingCard);
     if (!remainingCard) {
       this.randomCardNums.sort();
+      console.log(this.randomCardNums);
+      console.log(this.clickedValues);
       if (isEqual(this.randomCardNums, this.clickedValues)) {
         alert("You Won!");
       } else {
@@ -87,17 +86,23 @@ export class CardPlayer implements OnInit {
   }
 
   handlePlay(event) {
-    this.showCardMap.forEach((item, index) => {
-      this.showCardMap[index] = false;
-    });
-    event.target.disabled = true;
+    if (this.gameStarted) {
+      this.resetValues();
+    } else {
+      this.showCardMap.forEach((item, index) => {
+        this.showCardMap[index] = false;
+      });
+      this.gameStarted = true;
+      this.playBtnText = "Reset!";
+    }
   }
 
   resetValues() {
-    this.showCardMap = [];
+    this.randomCardNums.length = 0;
+    this.showCardMap.length = 0;
+    this.playBtnText = "Play!";
+    this.gameStarted = false;
     this.numbersGenerated = false;
-    this.randomCardNums = [];
     this.clickedValues = [];
-    this.selectionChanged = false;
   }
 }

@@ -21,18 +21,11 @@
 
 <div *ngIf="numbersGenerated">
   <div *ngFor="let num of randomCardNums; let i = index">
-    <button class="card" [value]="num" [attr.data-index]="i" (click)="handleCardClick($event)">Card: {{
+    <button class="card" [value]=num [attr.data-index]="i" (click)="handleCardClick($event)">Card: {{
       showCardMap[i]? num : '?' }}</button>
   </div>
 
   <div>
-    <button class="play-btn" id="playBtn" (click)="handlePlay($event)">Play!</button>
+    <button class="play-btn" id="playBtn" (click)="handlePlay($event)">{{playBtnText}}</button>
   </div>
 </div>
-
-
-
-<!-- <div *ngIf="shortUrlGenerated">
-  <p>Hey try the below short url in your browser </p>
-  <p>{{ shortUrl }}</p>
-</div> -->
